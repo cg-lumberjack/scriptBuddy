@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scriptbuddy"
+version = "0.1.0"
+description = "Screenplay parsing and breakdown: Final Draft .fdx and PDF in, scenes / cast / locations / props with screen time out."
+readme = "README.md"
+requires-python = ">=3.10"
+# license: TBD - see README "License" before the first public push.
+authors = [{ name = "Tom Mikota" }]
+keywords = ["screenplay", "final draft", "fdx", "breakdown", "film", "production", "pdf"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Other Audience",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Text Processing :: Markup :: XML",
+]
+dependencies = [
+    "pydantic>=2.0",
+    "xmltodict>=0.13",
+    "pymupdf>=1.23",
+]
+
+[project.optional-dependencies]
+excel = ["pandas>=2.0", "openpyxl>=3.1"]
+dev = ["pytest>=7", "pandas>=2.0", "openpyxl>=3.1"]
+
+[project.scripts]
+scriptbuddy = "scriptbuddy.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/cg-lumberjack/scriptBuddy"
+Issues = "https://github.com/cg-lumberjack/scriptBuddy/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scriptbuddy*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
