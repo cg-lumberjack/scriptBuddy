@@ -72,14 +72,18 @@ def load(
     path: str | Path,
     title: Optional[str] = None,
     discover: bool = True,
+    timing: Optional[ScriptTimingConfig] = None,
     **pdf_options,
 ) -> ScriptModel:
     """Read a ``.fdx`` or ``.pdf`` straight into a :class:`ScriptModel`. With
     ``discover`` (the default) the all-caps entity pass runs so every scene's
-    prop / sound / editorial / action pools are populated."""
+    prop / sound / editorial / action pools are populated.
+
+    ``timing`` is the pacing profile screen time is measured with; omitted, it is the
+    fitted default (:mod:`scriptbuddy.timing`)."""
     p = Path(path)
     model = load_container(p, **pdf_options).to_script_model(
-        project_id=p.stem, title=title or p.stem
+        project_id=p.stem, title=title or p.stem, timing=timing
     )
     if discover:
         model.discover_all_assets()

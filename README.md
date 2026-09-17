@@ -33,6 +33,12 @@ my_script: 116 scenes, ~113m 42.5s estimated
   scenes split on sluglines with INT/EXT, location and time parsed; dialogue
   attributed to its speaker across Final Draft's hard-return splits; a screen
   time estimate per block.
+- **Estimates screen time, tunably.** Every duration comes from `block_duration`
+  under a `ScriptTimingConfig`, so `load(script, timing=...)` retimes the whole
+  script. The defaults are fitted against two features with known runtimes and
+  opposite prose habits — an action-heavy animation and a dialogue-heavy comedy —
+  which land within a minute of each other. See `scriptbuddy/timing.py` for the
+  fit and its caveats.
 - **Breaks it down.** Every all-caps run in action and dialogue is routed to a
   pool (character, prop, sound, action cue, editorial marker), then a
   whole-script classifier re-decides each one with everything in view — who

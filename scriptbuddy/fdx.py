@@ -17,6 +17,7 @@ if TYPE_CHECKING:
         ScriptScene,
     )
     from scriptbuddy.block import ScriptBlock
+    from scriptbuddy.timing import ScriptTimingConfig
 
 # Define standard text parsing constants directly within the module scope
 KNOWN_TIMES = {
@@ -593,6 +594,7 @@ class ScriptContainer(BaseModel):
         model_cls: Optional[type] = None,
         scene_cls: Optional[type] = None,
         block_cls: Optional[type] = None,
+        timing: Optional["ScriptTimingConfig"] = None,
     ) -> ScriptModel:
         """
         Walk the Final Draft paragraphs and emit a normalized :class:`ScriptModel`:
@@ -602,11 +604,18 @@ class ScriptContainer(BaseModel):
         ``model_cls`` / ``scene_cls`` / ``block_cls`` let a caller substitute
         subclasses of the three models (a pipeline that hangs its own methods
         and fields off them) without re-implementing the walk.
+
+        ``timing`` is the pacing profile every duration is measured with
+        (:class:`~scriptbuddy.timing.ScriptTimingConfig`); omitted, it is the fitted
+        default. A show with its own cut to calibrate against passes its own.
         """
         from scriptbuddy.script import ScriptModel as _ScriptModel
         from scriptbuddy.script import ScriptScene as _ScriptScene
         from scriptbuddy.block import ScriptBlock as _ScriptBlock
         from scriptbuddy.block import ScriptBlockType
+        from scriptbuddy.timing import ScriptTimingConfig, block_duration
+
+        timing = timing or ScriptTimingConfig()
 
         ScriptModel = model_cls or _ScriptModel
         ScriptScene = scene_cls or _ScriptScene
@@ -712,7 +721,10 @@ class ScriptContainer(BaseModel):
             ):
                 prev = current_scene_blocks[-1]
                 prev.text = f"{prev.text} {p_text}".strip()
-                prev.duration_secs = round(len(prev.text.split()) / 2.5, 2)
+                prev.duration_secs = block_duration(
+                    prev.block_type.value, prev.text,
+                    parenthetical=bool(prev.parenthetical), config=timing,
+                )
                 continue
 
             # Speaker/parenthetical for this beat (dialogue inherits the running speaker).
@@ -729,15 +741,12 @@ class ScriptContainer(BaseModel):
                 else None
             )
 
-            # Calculate pacing speeds benchmarks. A character cue is not screen
-            # time - the dialogue that follows carries it - so it gets none.
-            words = len(p_text.split())
-            if assigned_type == ScriptBlockType.CHARACTER:
-                duration_secs = 0.0
-            elif assigned_type == ScriptBlockType.DIALOGUE:
-                duration_secs = words / 2.5
-            else:
-                duration_secs = words / 4.0
+            # Every duration in the model comes from one place, so that tuning the
+            # pacing profile tunes the script (scriptbuddy/timing.py).
+            duration_secs = block_duration(
+                assigned_type.value, p_text,
+                parenthetical=bool(parenthetical_text), config=timing,
+            )
             # Build our pristine ScriptBlock node element
             current_scene_blocks.append(
                 ScriptBlock(
