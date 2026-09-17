@@ -729,13 +729,15 @@ class ScriptContainer(BaseModel):
                 else None
             )
 
-            # Calculate pacing speeds benchmarks
+            # Calculate pacing speeds benchmarks. A character cue is not screen
+            # time - the dialogue that follows carries it - so it gets none.
             words = len(p_text.split())
-            duration_secs = (
-                (words / 2.5)
-                if assigned_type == ScriptBlockType.DIALOGUE
-                else (words / 4.0)
-            )
+            if assigned_type == ScriptBlockType.CHARACTER:
+                duration_secs = 0.0
+            elif assigned_type == ScriptBlockType.DIALOGUE:
+                duration_secs = words / 2.5
+            else:
+                duration_secs = words / 4.0
             # Build our pristine ScriptBlock node element
             current_scene_blocks.append(
                 ScriptBlock(
