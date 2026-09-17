@@ -100,4 +100,8 @@ python -m venv .venv
 
 ## License
 
-TBD.
+MIT — see [LICENSE](LICENSE). Copyright (c) 2026 Tom Mikota.
+
+The grant covers this package's own code. It does not extend to the screenplays
+under [`samples/`](samples/), which are third-party works kept as parser
+fixtures — see [`samples/README.md`](samples/README.md).
